@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestHandle(t *testing.T) {
+func TestUsersHandle(t *testing.T) {
 	var cases = []struct {
 		input    string
 		expected string
