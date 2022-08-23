@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -64,18 +65,24 @@ func ImageHandle(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, err)
 	}
 
-	if err := os.WriteFile("image.jpg", jpg, 0666); err != nil {
+	if err := convertImage(jpg); err != nil {
 		e.Error(err)
 		return e.JSON(http.StatusInternalServerError, err)
 	}
 
-	png, err := convertImage(jpg)
-	if err != nil {
-		e.Error(err)
-		return c.JSON(http.StatusInternalServerError, err)
-	}
+	return e.Attachment("image.png", "image.png")
 }
 
-func convertImage(imageData []byte) ([]byte, error) {
-
+func convertImage(jpg []byte) error {
+	if err := os.WriteFile("image.jpg", jpg, 0666); err != nil {
+		return err
+	}
+	cmd := exec.Command("resize.sh", "image")
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	if err := os.Remove("image.jpg"); err != nil {
+		return err
+	}
+	return nil
 }
