@@ -27,12 +27,12 @@ func TestHandle(t *testing.T) {
 	e := echo.New()
 	for _, test := range cases {
 		body := bytes.NewReader([]byte(test.input))
-		req := httptest.NewRequest("POST", "/handle1", body)
+		req := httptest.NewRequest("POST", "/users", body)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		if assert.NoError(t, Handle(c)) {
+		if assert.NoError(t, UsersHandle(c)) {
 			var left interface{}
 			var right interface{}
 			if err := json.Unmarshal([]byte(test.expected), &left); err != nil {

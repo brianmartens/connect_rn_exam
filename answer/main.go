@@ -3,17 +3,20 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"io"
 	"net/http"
+	"os"
 	"time"
 )
 
 func main() {
 	e := echo.New()
-	e.POST("/handle1", Handle)
+	e.POST("/users", UsersHandle)
+	e.POST("/image", ImageHandle)
 	log.Fatal(e.Start(":3000"))
 }
 
-func Handle(e echo.Context) error {
+func UsersHandle(e echo.Context) error {
 	req := Request{}
 	if err := e.Bind(&req); err != nil {
 		e.Error(err)
@@ -42,4 +45,37 @@ func Handle(e echo.Context) error {
 		})
 	}
 	return e.JSON(http.StatusOK, resp)
+}
+
+func ImageHandle(e echo.Context) error {
+	file, err := e.FormFile("image.jpg")
+	if err != nil {
+		return err
+	}
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	jpg, err := io.ReadAll(src)
+	if err != nil {
+		e.Error(err)
+		return e.JSON(http.StatusInternalServerError, err)
+	}
+
+	if err := os.WriteFile("image.jpg", jpg, 0666); err != nil {
+		e.Error(err)
+		return e.JSON(http.StatusInternalServerError, err)
+	}
+
+	png, err := convertImage(jpg)
+	if err != nil {
+		e.Error(err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+}
+
+func convertImage(imageData []byte) ([]byte, error) {
+
 }
