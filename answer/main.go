@@ -69,11 +69,7 @@ func ImageHandle(e echo.Context) error {
 		e.Error(err)
 		return e.JSON(http.StatusInternalServerError, err)
 	}
-	defer func(c echo.Context) {
-		if err := os.Remove("image.png"); err != nil {
-			c.Logger().Error(err)
-		}
-	}(e)
+
 	return e.Attachment("image.png", "image.png")
 }
 
